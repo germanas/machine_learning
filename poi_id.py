@@ -9,23 +9,40 @@ from tester import dump_classifier_and_data
 import pprint
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 import seaborn as sns
 
 ### Helper functions
 
 #plot features ####!!!! rebuild this function to take any 2 features and display a scatterplot
 def plotting_salary_expenses(dataset, feature1, feature2):
-    print dataset
+    #print dataset
     x = []
     y = []
+    z = []
+    new_z = []
     for person in dataset:
         for feature in data_dict[person]:
             if feature == feature1:
                 x.append(data_dict[person][feature])
             elif feature == feature2:
                 y.append(data_dict[person][feature])
-    print x
-    plt.scatter(x,y)
+            elif feature == 'poi':
+                z.append(data_dict[person][feature])
+    for i in z:
+        if i == True:
+            new_z.append('g')
+        elif i == False:
+            new_z.append('r')
+    fig, ax = plt.subplots()
+    for color in new_z:
+        ax.scatter(x, y, c=new_z)
+    #plt.scatter(x,y, c=z, label=z)
+    red_patch = mpatches.Patch(color='red', label='Poi TRUE')
+    green_patch = mpatches.Patch(color='green', label='Poi FALSE')
+    ax.legend(handles=[red_patch, green_patch])
+    ax.set_xlabel(feature1)
+    ax.set_ylabel(feature2)
     plt.show()
 
 ### Task 1: Select what features you'll use.
@@ -36,15 +53,16 @@ features_list = ['poi','salary','expenses'] # You will need to use more features
 ### Load the dictionary containing the dataset
 with open("final_project_dataset.pkl", "r") as data_file:
     data_dict = pickle.load(data_file)
-my_dataset = data_dict
+#my_dataset = data_dict
+print data_dict["TOTAL"]
 ### Task 2: Remove outliers
-plotting_salary_expenses(my_dataset, 'salary', 'expenses')
-my_dataset.pop("TOTAL", 0)
-plotting_salary_expenses(my_dataset, 'salary', 'expenses')
-#plotting_salary_expenses(features)
+plotting_salary_expenses(data_dict, 'salary', 'expenses')
+data_dict.pop("TOTAL", 0)
+plotting_salary_expenses(data_dict, 'salary', 'expenses')
+
 ### Task 3: Create new feature(s)
 ### Store to my_dataset for easy export below.
-#my_dataset = data_dict
+my_dataset = data_dict
 
 ### Extract features and labels from dataset for local testing
 data = featureFormat(my_dataset, features_list, sort_keys = True)
