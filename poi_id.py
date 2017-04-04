@@ -34,7 +34,7 @@ data_dict.pop("TOTAL", 0)
 ### Task 3: Create new feature(s)
 ### Store to my_dataset for easy export below.
 my_dataset = data_dict
-
+# Create ratio from person to poi and vice versa
 ### Extract features and labels from dataset for local testing
 data = featureFormat(my_dataset, features_list, sort_keys = True)
 labels, features = targetFeatureSplit(data)
@@ -49,8 +49,9 @@ labels, features = targetFeatureSplit(data)
 # Provided to give you a starting point. Try a variety of classifiers.
 from sklearn.naive_bayes import GaussianNB
 clf = GaussianNB()
-clf.fit(labels, features)
-print clf.score(features)
+
+from sklearn.tree import DecisionTreeClassifier
+clf = DecisionTreeClassifier()
 ### Task 5: Tune your classifier to achieve better than .3 precision and recall
 ### using our testing script. Check the tester.py script in the final project
 ### folder for details on the evaluation method, especially the test_classifier
