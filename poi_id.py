@@ -26,9 +26,9 @@ dataset_info(data_dict)
 
 ### Task 2: Remove outliers
 # I will plot different features to check for outliers
-plotting_salary_expenses(data_dict, 'salary', 'expenses')
-plotting_salary_expenses(data_dict, 'salary', 'from_poi_to_this_person')
-plotting_salary_expenses(data_dict, 'from_poi_to_this_person', 'from_this_person_to_poi')
+#plotting_salary_expenses(data_dict, 'salary', 'expenses')
+#plotting_salary_expenses(data_dict, 'salary', 'from_poi_to_this_person')
+#plotting_salary_expenses(data_dict, 'from_poi_to_this_person', 'from_this_person_to_poi')
 # From these plots I can see only one major outlier. So I remove it:
 data_dict.pop("TOTAL", 0)
 ### Task 3: Create new feature(s)
@@ -49,9 +49,28 @@ labels, features = targetFeatureSplit(data)
 # Provided to give you a starting point. Try a variety of classifiers.
 from sklearn.naive_bayes import GaussianNB
 clf = GaussianNB()
+clf.fit(features, labels)
+#print clf.predict(features)
+print clf.score(features, labels)
 
 from sklearn.tree import DecisionTreeClassifier
-clf = DecisionTreeClassifier()
+clf2 = DecisionTreeClassifier()
+clf2.fit(features, labels)
+print clf2.predict(features)
+print clf2.score(features, labels)
+
+from sklearn import svm
+clf3 = svm.SVC()
+clf3.fit(features, labels)
+print clf3.predict(features)
+print clf3.score(features, labels)
+
+from sklearn.neighbors import KNeighborsClassifier
+clf = KNeighborsClassifier(n_neighbors=1)
+clf.fit(features, labels)
+print(clf.predict(features))
+print clf.score(features, labels)
+
 ### Task 5: Tune your classifier to achieve better than .3 precision and recall
 ### using our testing script. Check the tester.py script in the final project
 ### folder for details on the evaluation method, especially the test_classifier
