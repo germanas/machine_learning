@@ -1,5 +1,4 @@
 #!/usr/bin/python
-#plot features ####!!!! rebuild this function to take any 2 features and display a scatterplot
 
 import pprint
 import numpy as np
@@ -7,7 +6,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 
 def plotting_salary_expenses(dataset, feature1, feature2):
-    #print dataset
+    '''this function takes dataset, 2 features and creates a scatter plot from these features'''
     x = []
     y = []
     z = []
@@ -28,7 +27,7 @@ def plotting_salary_expenses(dataset, feature1, feature2):
     fig, ax = plt.subplots()
     for color in new_z:
         ax.scatter(x, y, c=new_z)
-    #plt.scatter(x,y, c=z, label=z)
+
 
     red_patch = mpatches.Patch(color='red', label='Not poi')
     green_patch = mpatches.Patch(color='green', label='Poi')
@@ -38,6 +37,7 @@ def plotting_salary_expenses(dataset, feature1, feature2):
     plt.show()
 
 def dataset_info(dataset):
+    '''Takes in a dataset and prints out the information of this dataset'''
     #Print number of data points on dataset
     print 'Number of total datapoints: ', len(dataset)
     #Print number of features for each datapoint
@@ -60,3 +60,17 @@ def dataset_info(dataset):
             not_poi_count += 1
     print 'Number of persons of interest in this dataset: ', poi_count
     print 'Number of other people in this dataset: ', not_poi_count
+
+def remove_outlier(dataset, keys):
+    '''Takes in a dataset and a list of outlier keys, and removes them from dataset'''
+    for key in keys:
+        dataset.pop(key, 0)
+
+def ratio(poi_to, poi_from):
+    ''' Calculates the ratio between poi_to and poi_from emails.'''
+    if poi_to == 'NaN' or poi_from == 'NaN':
+        return 0
+    elif poi_to == 0 or poi_from == 0:
+        return 0
+    ratio = float(poi_to) / poi_from
+    return ratio
