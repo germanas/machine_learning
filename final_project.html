@@ -11755,75 +11755,6 @@ div#notebook {
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[26]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">pickle</span>
-<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;../tools/&quot;</span><span class="p">)</span>
-
-<span class="kn">from</span> <span class="nn">feature_format</span> <span class="kn">import</span> <span class="n">featureFormat</span><span class="p">,</span> <span class="n">targetFeatureSplit</span>
-<span class="kn">from</span> <span class="nn">tester</span> <span class="kn">import</span> <span class="n">dump_classifier_and_data</span>
-<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">precision_score</span>
-<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">recall_score</span>
-<span class="kn">from</span> <span class="nn">sklearn.grid_search</span> <span class="kn">import</span> <span class="n">GridSearchCV</span>
-
-<span class="c1">### Import helper functions</span>
-<span class="kn">from</span> <span class="nn">helper_functions</span> <span class="kn">import</span> <span class="n">plotting_salary_expenses</span><span class="p">,</span> <span class="n">dataset_info</span><span class="p">,</span>\
-    <span class="n">remove_outlier</span><span class="p">,</span> <span class="n">ratio</span>
-
-<span class="c1">### Task 1: Select what features you&#39;ll use.</span>
-<span class="c1">### features_list is a list of strings, each of which is a feature name.</span>
-<span class="c1">### The first feature must be &quot;poi&quot;.</span>
-<span class="n">features_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;poi&#39;</span><span class="p">,</span><span class="s1">&#39;salary&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;bonus&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;long_term_incentive&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;deferred_income&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;deferral_payments&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;loan_advances&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;other&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;expenses&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;director_fees&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;total_payments&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;exercised_stock_options&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;restricted_stock&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;restricted_stock_deferred&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;total_stock_value&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;to_messages&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;from_messages&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;from_this_person_to_poi&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;from_poi_to_this_person&#39;</span><span class="p">]</span>
-
-<span class="c1">### Load the dictionary containing the dataset</span>
-<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;final_project_dataset.pkl&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">data_file</span><span class="p">:</span>
-    <span class="n">data_dict</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">data_file</span><span class="p">)</span>
-<span class="c1">#my_dataset = data_dict</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[28]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="c1">#plotting_salary_expenses(data_dict, &#39;salary&#39;, &#39;expenses&#39;)</span>
-<span class="c1">#plotting_salary_expenses(data_dict, &#39;salary&#39;, &#39;from_poi_to_this_person&#39;)</span>
-<span class="c1">#plotting_salary_expenses(data_dict, &#39;from_poi_to_this_person&#39;, &#39;from_this_person_to_poi&#39;)</span>
-<span class="c1">#plotting_salary_expenses(data_dict, &#39;salary&#39;, &#39;from_this_person_to_poi&#39;)</span>
-<span class="c1">#plotting_salary_expenses(data_dict, &#39;shared_receipt_with_poi&#39;, &#39;to_messages&#39;)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
 <div class="cell border-box-sizing text_cell rendered">
 <div class="prompt input_prompt">
 </div>
@@ -11982,60 +11913,6 @@ div#notebook {
 
 </div>
 </div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[17]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="n">HTML</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;&lt;script&gt;</span>
-<span class="s1">code_show=true; </span>
-<span class="s1">function code_toggle() {</span>
-<span class="s1"> if (code_show){</span>
-<span class="s1"> $(&#39;div.input&#39;).hide();</span>
-<span class="s1"> } else {</span>
-<span class="s1"> $(&#39;div.input&#39;).show();</span>
-<span class="s1"> }</span>
-<span class="s1"> code_show = !code_show</span>
-<span class="s1">} </span>
-<span class="s1">$( document ).ready(code_toggle);</span>
-<span class="s1">&lt;/script&gt;</span>
-<span class="s1">The raw code for this IPython notebook is by default hidden for easier reading.</span>
-<span class="s1">To toggle on/off the raw code, click &lt;a href=&quot;javascript:code_toggle()&quot;&gt;here&lt;/a&gt;.&#39;&#39;&#39;</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area"><div class="prompt output_prompt">Out[17]:</div>
-
-<div class="output_html rendered_html output_subarea output_execute_result">
-<script>
-code_show=true; 
-function code_toggle() {
- if (code_show){
- $('div.input').hide();
- } else {
- $('div.input').show();
- }
- code_show = !code_show
-} 
-$( document ).ready(code_toggle);
-</script>
-The raw code for this IPython notebook is by default hidden for easier reading.
-To toggle on/off the raw code, click <a href="javascript:code_toggle()">here</a>.
-</div>
-
-</div>
-
-</div>
-</div>
-
 </div>
     </div>
   </div>
