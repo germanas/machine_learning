@@ -5,6 +5,21 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 
+def find_empty(dataset):
+    NAN = 0
+    TOTAL = 0
+    for person in dataset:
+        for key in dataset[person].keys():
+            if dataset[person][key] == 'NaN':
+                NAN += 1
+                TOTAL += 1
+            else:
+                TOTAL += 1
+    print 'Total feature values missing: ', NAN
+    print 'Total feature values: ', TOTAL
+    print 'The percentage compared to all values: ', float(NAN)/TOTAL * 100
+
+
 def plotting_salary_expenses(dataset, feature1, feature2):
     '''this function takes dataset, 2 features and creates a scatter plot from these features'''
     x = []
@@ -48,8 +63,8 @@ def dataset_info(dataset):
             available_features.add(item)
 
     print 'Number of features for each datapoint: ', len(available_features)
-    print 'Those features are: '
-    pprint.pprint(available_features)
+    #print 'Those features are: '
+    #pprint.pprint(available_features)
     # Find the number of POI's in the dataset
     poi_count = 0
     not_poi_count = 0
@@ -74,3 +89,4 @@ def ratio(poi_to, poi_from):
         return 0
     ratio = float(poi_to) / poi_from
     return ratio
+

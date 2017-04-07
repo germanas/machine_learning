@@ -6,9 +6,13 @@ sys.path.append("../tools/")
 
 from feature_format import featureFormat, targetFeatureSplit
 from tester import dump_classifier_and_data
+from sklearn.metrics import precision_score
+from sklearn.metrics import recall_score
+from sklearn.grid_search import GridSearchCV
 
 ### Import helper functions
-from helper_functions import plotting_salary_expenses, dataset_info, remove_outlier, ratio
+from helper_functions import plotting_salary_expenses, dataset_info,\
+    remove_outlier, ratio, find_empty
 
 ### Task 1: Select what features you'll use.
 ### features_list is a list of strings, each of which is a feature name.
@@ -39,14 +43,13 @@ with open("final_project_dataset.pkl", "r") as data_file:
 
 # Get info about this dataset
 dataset_info(data_dict)
-
 ### Task 2: Remove outliers
 # I will plot some of the features to check for outliers and see how the data distributes on the plot
-#plotting_salary_expenses(data_dict, 'salary', 'expenses')
-#plotting_salary_expenses(data_dict, 'salary', 'from_poi_to_this_person')
-#plotting_salary_expenses(data_dict, 'from_poi_to_this_person', 'from_this_person_to_poi')
-#plotting_salary_expenses(data_dict, 'salary', 'from_this_person_to_poi')
-#plotting_salary_expenses(data_dict, 'shared_receipt_with_poi', 'to_messages')
+plotting_salary_expenses(data_dict, 'salary', 'expenses')
+plotting_salary_expenses(data_dict, 'salary', 'from_poi_to_this_person')
+plotting_salary_expenses(data_dict, 'from_poi_to_this_person', 'from_this_person_to_poi')
+plotting_salary_expenses(data_dict, 'salary', 'from_this_person_to_poi')
+plotting_salary_expenses(data_dict, 'shared_receipt_with_poi', 'to_messages')
 # From these plots I can see only one major outlier. So I remove it:
 outliers = ['TOTAL']
 remove_outlier(data_dict, outliers)
@@ -61,13 +64,28 @@ for name in my_dataset:
     ratio_from_poi = ratio(poi_to, poi_from)
     data_point["ratio_of_poi_emails"] = ratio_from_poi
 
+# Plotting the new feature
+plotting_salary_expenses(data_dict, 'salary', 'ratio_of_poi_emails')
 ### Extract features and labels from dataset for local testing
 data = featureFormat(my_dataset, features_list, sort_keys = True)
 labels, features = targetFeatureSplit(data)
 
-# I will now use k-best to find 5 most promising features
-from sklearn.feature_selection import SelectKBest
-features = SelectKBest(k=10).fit_transform(features, labels)
+# Counting NAN
+find_empty(data_dict)
+
+# Selecting features using k-best
+from sklearn.feature_selection import SelectKBest, f_classif
+kbest = SelectKBest(k=10)
+# selected_features are the features selected by SelectKbest
+selected_features = kbest.fit_transform(features, labels)
+features_selected =[features_list[i+1] for i in kbest.get_support(indices=True)]
+for f in features_selected[0:]:
+	print f, "score is: ", kbest.scores_[features_selected[0:].index(f)]
+
+# Scaling the features
+from sklearn import preprocessing
+scaler = preprocessing.MinMaxScaler()
+features = scaler.fit_transform(features)
 
 ### Task 4: Try a varity of classifiers
 ### Please name your classifier clf for easy export below.
@@ -89,27 +107,70 @@ clf2 = DecisionTreeClassifier()
 from sklearn.neighbors import KNeighborsClassifier
 clf3 = KNeighborsClassifier()
 
-
 ### Task 5: Tune your classifier to achieve better than .3 precision and recall
 ### using our testing script. Check the tester.py script in the final project
 ### folder for details on the evaluation method, especially the test_classifier
 ### function. Because of the small size of the dataset, the script uses
 ### stratified shuffle split cross validation. For more info:
 ### http://scikit-learn.org/stable/modules/generated/sklearn.cross_validation.StratifiedShuffleSplit.html
+from sklearn.pipeline import Pipeline
+from sklearn.feature_selection import SelectKBest
+from sklearn.cross_validation import StratifiedShuffleSplit, train_test_split, cross_val_score
 
-# Example starting point. Try investigating other evaluation techniques!
-from sklearn.cross_validation import train_test_split
+# Plot features in to train and test.
 features_train, features_test, labels_train, labels_test = \
-    train_test_split(features, labels, test_size=0.3, random_state=42)
+train_test_split(features, labels, test_size=0.3, random_state=42)
 
-#Creating a function to test and tune my algorithm
-clf = clf2
-#clf1.fit(lab)
+skb = SelectKBest(k = 10)
+# using the same pipeline:
+pipe = Pipeline(steps=[('scaling',scaler),("SKB", skb), ("Naive bayes", GaussianNB())])
 
+# define the parameter grid for SelectKBest,
+# using the name from the pipeline followed by 2 underscores:
+parameters = {'SKB__k': range(1, 14)}
 
-### Task 6: Dump your classifier, dataset, and features_list so anyone can
-### check your results. You do not need to change anything below, but make sure
-### that the version of poi_id.py that you submit can be run on its own and
-### generates the necessary .pkl files for validating your results.
+# Use the pipeline in GridSearchCV, with the parameter 'grid'
+# using 'f1' as the scoring metric (as it is the weighted average
+# of precision and recall):
+gs = GridSearchCV(pipe, param_grid = parameters, scoring = 'f1')
+
+# fit GridSearchCV:
+gs.fit(features_train, labels_train)
+
+# extract the best algorithm:
+clf = gs.best_estimator_
+
+print 'best algorithm is: '
+print clf
+
+# create an instance of 'StratifiedShuffleSplit',
+# in this case '100' refers to the number of folds
+# that is, the number of test/train splits
+sk_fold = StratifiedShuffleSplit(labels, 100, random_state = 42)
+
+# use this cross validation method in GridSearchCV:
+grid_search = GridSearchCV(pipe, param_grid = parameters, cv=sk_fold, scoring = 'f1')
+
+# with 'StratifiedShuffleSplit' you fit the complete dataset
+# GridSearchCV, internally, will use the indices from 'StratifiedShuffleSplit'
+# to fit all 100 folds (all 100 test/train subsets).
+grid_search.fit(features, labels)
+
+# extract the best algorithm:
+clf = grid_search.best_estimator_
+
+print 'best algorithm using strat_s_split: '
+print clf
+
+clf.fit(features_train, labels_train)
+pred = clf.predict(features_test)
+score = clf.score(features_test, labels_test)
+print score
+
+pre = precision_score(labels_test, pred)
+print "precision: ",pre
+rec = recall_score(labels_test, pred)
+print "recall: ",rec
+
 
 dump_classifier_and_data(clf, my_dataset, features_list)
