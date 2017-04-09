@@ -63,9 +63,10 @@ for name in my_dataset:
     poi_from = data_point["from_this_person_to_poi"]
     ratio_from_poi = ratio(poi_to, poi_from)
     data_point["ratio_of_poi_emails"] = ratio_from_poi
-
+features_list.append("ratio_of_poi_emails")
+print my_dataset
 # Plotting the new feature
-plotting_salary_expenses(data_dict, 'salary', 'ratio_of_poi_emails')
+#plotting_salary_expenses(data_dict, 'salary', 'ratio_of_poi_emails')
 ### Extract features and labels from dataset for local testing
 data = featureFormat(my_dataset, features_list, sort_keys = True)
 labels, features = targetFeatureSplit(data)
@@ -75,7 +76,7 @@ find_empty(data_dict)
 
 # Selecting features using k-best
 from sklearn.feature_selection import SelectKBest, f_classif
-kbest = SelectKBest(k=10)
+kbest = SelectKBest(k='all')
 # selected_features are the features selected by SelectKbest
 selected_features = kbest.fit_transform(features, labels)
 features_selected =[features_list[i+1] for i in kbest.get_support(indices=True)]
@@ -121,7 +122,7 @@ from sklearn.cross_validation import StratifiedShuffleSplit, train_test_split, c
 features_train, features_test, labels_train, labels_test = \
 train_test_split(features, labels, test_size=0.3, random_state=42)
 
-skb = SelectKBest(k = 10)
+skb = SelectKBest()
 # using the same pipeline:
 pipe = Pipeline(steps=[('scaling',scaler),("SKB", skb), ("Naive bayes", GaussianNB())])
 
@@ -163,6 +164,7 @@ print 'best algorithm using strat_s_split: '
 print clf
 
 clf.fit(features_train, labels_train)
+
 pred = clf.predict(features_test)
 score = clf.score(features_test, labels_test)
 print score
@@ -171,6 +173,6 @@ pre = precision_score(labels_test, pred)
 print "precision: ",pre
 rec = recall_score(labels_test, pred)
 print "recall: ",rec
-
+#clf = clf1
 
 dump_classifier_and_data(clf, my_dataset, features_list)

@@ -11800,21 +11800,30 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>I ended up using "SelectKBest" for feature selection. I found these scores for my features:</p>
+<p>I ended up using "SelectKBest" for feature selection. I used parameter k='all' so that the algorithm would check all of the features. After my parameter tuning I found out that the k-score with StratifiedShuffleSplit is giving the best results. So I used 10 features in the final clasifier.</p>
 <ul>
 <li>salary score is:  18.575703268</li>
 <li>bonus score is:  21.0600017075</li>
 <li>long_term_incentive score is:  10.0724545294</li>
 <li>deferred_income score is:  11.5955476597</li>
-<li>loan_advances score is:  0.21705893034</li>
-<li>expenses score is:  7.24273039654</li>
-<li>total_payments score is:  4.2049708583</li>
-<li>exercised_stock_options score is:  6.23420114051</li>
-<li>restricted_stock score is:  2.10765594328</li>
-<li>total_stock_value score is:  8.86672153711</li>
+<li>deferral_payments score is:  0.21705893034</li>
+<li>loan_advances score is:  7.24273039654</li>
+<li>other score is:  4.2049708583</li>
+<li>expenses score is:  6.23420114051</li>
+<li>director_fees score is:  2.10765594328</li>
+<li>total_payments score is:  8.86672153711</li>
+<li>exercised_stock_options score is:  25.0975415287</li>
+<li>restricted_stock score is:  9.34670079105</li>
+<li>restricted_stock_deferred score is:  0.0649843117237</li>
+<li>total_stock_value score is:  24.4676540475</li>
+<li>to_messages score is:  1.69882434858</li>
+<li>from_messages score is:  0.164164498234</li>
+<li>from_this_person_to_poi score is:  2.42650812724</li>
+<li>from_poi_to_this_person score is:  5.34494152315</li>
+<li>ratio_of_poi_emails score is:  0.423244226689</li>
 </ul>
-<p>the scale is different for all of them, for example emails to poi could have about 300 emails, while salary can go up to 100 000 and so on.</p>
-<p>I created a new feature called "ratio of poi_to and poi_from". I wanted to see what is the ratio of sent and received emails from poi and maybe find some patterns in this data.</p>
+<p>I created a new feature called "ratio of poi_to and poi_from". I wanted to see what is the ratio of sent and received emails from poi and maybe find some patterns in this data. I found that my newly created feature had such a low importance of 0.42 that when I use GridSearchCV to find the best parameters, it selects K - 5 or K - 10 and outomaticaly dismisses the new feature. So there is no point in using this feature to identify POI.</p>
+<p>I have noticed that the scale of some of my features are really different. For example the scale of emails sent is from 0 to about 500, but the scale for salary can go up to 1 000 000. To compare these features, I had to use feature scaling, to scale down the salary feature. I ended up using MinMaxScaler() in my code.</p>
 
 </div>
 </div>
@@ -11860,8 +11869,12 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Tuning the parameters in my case means that I used different parameters in the classifier to get the best result and least overplotting. I tuned my parameters by using automatic parameter tuning with GridSearchCV and piping. GridSearchCV found the most optimal parameters to get the best result in my algorithm.</p>
-<p>If I wouldn't have used the tuning and used the default values, I would have got lower precission and recall scores. I had to use tuning to get the best result possible.</p>
+<p>Parameter tuning is necessary to improve the performance of my machine learning algorithm by improving accuracy and preccision. To find out which parameters was the best I automated the tuning by using GridSearchCV function. This takes different parameters and returns those parameters who perform the best. If I wouldn't have had tuned the parameters and used the defaults, i would have gone way worse results in accuracy and precission. For the best scores I used GaussianNB classifier with feature scaling and and 10 best perforimg features using SelectKBest.</p>
+<p>I was playing with different parameters in my gridsearch but I was getting precission: 0.23538. After reading the forums I found out that I should use  StratifiedShuffleSplit to split the train and test data more equaly. That worked and the best parameters of my gridsearchcv giving the best scores was: using MinMaxScaler, SelectKBest(k=10), classifier - GausianNB and StratifiedShuffleSplit.</p>
+<p>Performance before tuning -<br>
+Accuracy: 0.74780    Precision: 0.23538    Recall: 0.39650    F1: 0.29540    F2: 0.34876<br>
+After tuning -<br>
+Accuracy: 0.84427    Precision: 0.39855    Recall: 0.33000    F1: 0.36105    F2: 0.34176</p>
 
 </div>
 </div>
@@ -11881,8 +11894,8 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Validation is a strategy to separate your data to train and test sets so the results would not be overfitted and the most accurate and not corrupted by the training. The classic mistake is to test on your training data which gives you bad results.</p>
-<p>I validated my data using StratifiedShuffleSplit and train_test_split</p>
+<p>Validation is a strategy to separate your data to train and test sets so the results would not be overfitted and the most accurate and not corrupted by the training. The classic mistake when using a small sample size when every data point is important for model building, so spliting the data could separate the data unevenly, and that's why I will use stratifiedShuffleSplit.</p>
+<p>I validated my data using StratifiedShuffleSplit and train_test_split. Using StratifiedShuffleSplit was helpfull because of my small dataset with a small number of POI's because of that the data is skewed towards non-POI. This fixes these issues and picks data for testing more carefully. The full definition of StratifiedShuffleSplit is "This cross-validation object is a merge of StratifiedKFold and ShuffleSplit, which returns stratified randomized folds. The folds are made by preserving the percentage of samples for each class."</p>
 
 </div>
 </div>
@@ -11904,12 +11917,12 @@ div#notebook {
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>My selected evaluation metrics are precission and recall.</p>
 <ul>
-<li><p>Precission: This is the ratio of predicted labels (POI) that were actualy the persons of interest.</p>
-</li>
-<li><p>Recall: This is the ratio of how many items were labeled as POI that were actual POI's. This means the higher this score is, the better the prediction.</p>
-</li>
+<li>Precission: This is the ratio of predicted labels (POI) that were actualy the persons of interest.</li>
 </ul>
-<p>In my case using tester.py, I got precission of 0.39855 and recall of 0.33000</p>
+$$Precision= \dfrac{TruePositive}{TruePositive+FalsePositive} $$<ul>
+<li>Recall: This ratio tells how many POI's were identified that are actual POI's and how many POI's there actualy are in the dataset.</li>
+</ul>
+$$Recall= \dfrac{TruePositive}{TruePositive+FalseNegative} $$<p>In my case using tester.py, I got precission of 0.39855 and recall of 0.33000</p>
 
 </div>
 </div>
