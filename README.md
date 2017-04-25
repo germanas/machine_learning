@@ -57,7 +57,7 @@ I validated my data using StratifiedShuffleSplit and train_test_split. Using Str
 ## VI. Give at least 2 evaluation metrics and your average performance for each of them. Explain an interpretation of your metrics that says something human-understandable about your algorithm’s performance.
 My selected evaluation metrics are precission and recall.  
 Precission: This is the ratio of predicted labels (POI) that were actualy the persons of interest.  
--Precision= TruePositive/TruePositive+FalsePositive 
+- Precision= TruePositive/TruePositive+FalsePositive 
 Recall: This ratio tells how many POI's were identified that are actual POI's and how many POI's there actualy are in the dataset.
--Recall= TruePositive/TruePositive+FalseNegative
+- Recall= TruePositive/TruePositive+FalseNegative
 In my case using tester.py, I got precission of 0.39855 and recall of 0.33000
